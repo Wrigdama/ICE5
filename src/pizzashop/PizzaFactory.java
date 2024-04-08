@@ -1,36 +1,27 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pizzashop;
 
-/**
- * A class that creates different kinds of pizzas
- * depending on their type.
- * Note that the following source was used as a reference in 
- * creating this example:
- * Freeman, E.Freeman, E., Sierra, K., & Bates, B. (2004). Head First Design patterns. Sebastopol, CA: O'Reilly.
- * @author dancye
- */
-class PizzaFactory 
-{
-    /**
-     * returns a concrete pizza object
-     * @param type the type of pizza to return
-     * @return 
-     */
-    public Pizza createPizza(String type)
-    {
-        Pizza pizza = null;
-        if(type.equals("cheese"))
-        {
-            pizza = new CheesePizza();
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
+public class PizzaFactory {
+    private final Map<String, Supplier<Pizza>> registeredPizzas = new HashMap<>();
+
+    public PizzaFactory() {
+        // Register pizza types with their creation logic, including strategies.
+        registerPizza("cheese", () -> new CheesePizza(new StandardBakingStrategy(), new StandardCuttingStrategy()));
+        registerPizza("pepperoni", () -> new PepperoniPizza(new StandardBakingStrategy(), new StandardCuttingStrategy()));
+    }
+
+    public void registerPizza(String type, Supplier<Pizza> constructor) {
+        registeredPizzas.put(type, constructor);
+    }
+
+    public Pizza createPizza(String type) {
+        Supplier<Pizza> pizzaSupplier = registeredPizzas.get(type);
+        if (pizzaSupplier != null) {
+            return pizzaSupplier.get();
         }
-        else if (type.equals("pepperoni"))
-        {
-                pizza = new PepperoniPizza();
-        }
-        return pizza;
+        throw new IllegalArgumentException("No such pizza type registered");
     }
 }
